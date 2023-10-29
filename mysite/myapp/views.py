@@ -1,5 +1,4 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Product
 
 
@@ -10,12 +9,14 @@ def index(request):
     }
     return render(request, 'myapp/index.html', context)
 
-def indexItem(request, my_id):
+
+def indexitem(request, my_id):
     item = Product.objects.get(id=my_id)
     context = {
         'item': item
     }
     return render(request, 'myapp/detail.html', context)
+
 
 def add_item(request):
     if request.method == 'POST':
@@ -28,3 +29,16 @@ def add_item(request):
     return render(request, 'myapp/additem.html')
 
 
+def update_item(request, my_id):
+    item = Product.objects.get(id=my_id)
+    if request.method == 'POST':
+        item.name = request.POST.get('name')
+        item.price = request.POST.get('price')
+        item.descriptions = request.POST.get('descriptions')
+        item.image = request.FILES.get('upload', item.image)
+        item.save()
+        return redirect('/myapp/')
+    context = {
+        'item': item
+    }
+    return render(request, 'myapp/updateitem.html', context)
